@@ -1,0 +1,66 @@
+version: 2
+
+jobs:
+  test:
+    docker:
+      - image: circleci/golang:1.13
+        environment:
+          PROJECT_ROOT: /go/src/datarepo-go
+          GOPATH: /go
+          GOBIN: /go/bin
+          DB_USERNAME: "root"
+          DB_PASSWORD: "secret"
+          DB_HOST: "localhost"
+          DB_PORT: "3306"
+          DB_NAME: "sample"
+          REDIS_HOST: "localhost:6379"
+          REDIS_DATABASE: "10"
+      - image: mysql:5.7
+        environment:
+          MYSQL_ROOT_PASSWORD: 'secret'
+          MYSQL_DATABASE: sample
+      - image: redis:5.0.5
+
+    working_directory: /go/src/datarepo-go
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-pkg-cache
+      - run:
+          name: Get Dependencies
+          command: go get -d -v ./...
+      - run:
+          name: Run linters
+          command: |
+            wget -O - -q https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s v1.21.0
+            ./bin/golangci-lint run ./... -D errcheck
+      - run:
+          name: Wait for DB and Redis
+          # preinstalled in circleci/* docker image
+          command: |
+            dockerize -wait tcp://127.0.0.1:3306 -timeout 2m
+            dockerize -wait tcp://127.0.0.1:6379 -timeout 2m
+      - run:
+          name: Run Unit and Integration Tests
+          command: |
+            go get gotest.tools/gotestsum
+            mkdir junit
+            mkdir unittests
+            gotestsum --junitfile junit/unit-tests.xml -- -coverprofile=unittests/cover.out -coverpkg ./... ./...
+            go tool cover -html=unittests/cover.out -o unittests/coverage.html
+      - save_cache:
+          key: v1-pkg-cache
+          paths:
+            - "/go/pkg"
+      - store_test_results:
+          path: /go/src/datarepo-go/junit
+      - store_artifacts:
+          path: /go/src/datarepo-go/unittests
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test
