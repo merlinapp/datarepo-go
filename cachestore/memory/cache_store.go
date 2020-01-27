@@ -14,7 +14,7 @@ type memoryBasedCacheStore struct {
 	cache *freecache.Cache
 }
 
-// Creates a new BookCacheStore backed by a freecache Cache (github.com/coocood/freecache)
+// Creates a new CacheStore backed by a freecache Cache (github.com/coocood/freecache)
 //
 // Implementation Notes: Currently this implementation serializes the data to JSON
 // for storage in the memory cache
