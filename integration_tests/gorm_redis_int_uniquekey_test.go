@@ -30,18 +30,18 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetNonExistentBook() {
 			// no-op: database starts with no data in the test transaction, so no need
 			// to do anything
 
-			Convey("When a book is that doesn't exist is fetched", func() {
+			Convey("When a book that doesn't exist is fetched", func() {
 				bookId := uuid.NewV4().String()
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
-				result, err := s.system.CachedRepo.FindByKey(ctx, "ID", bookId)
+				result, err := s.system.BookRepo.FindByKey(ctx, "ID", bookId)
 
 				Convey("Then the result should be empty, "+
 					"And the database should've been queried, "+
 					"And there should be a cache miss", func() {
 					So(err, ShouldBeNil)
 					So(result.IsEmpty(), ShouldBeTrue)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 1)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 1)
 					So(s.system.UniqueKeyDataFetcher.Reads(), ShouldEqual, 1)
 				})
 			})
@@ -61,9 +61,9 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetNonExistentBooks() {
 				bookId1 := uuid.NewV4().String()
 				bookId2 := uuid.NewV4().String()
 				ids := []string{bookId1, bookId2}
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
-				results, err := s.system.CachedRepo.FindByKeys(ctx, "ID", ids)
+				results, err := s.system.BookRepo.FindByKeys(ctx, "ID", ids)
 
 				Convey("Then the results should be empty, "+
 					"And the database should've been queried for 2 missing ids, "+
@@ -71,7 +71,7 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetNonExistentBooks() {
 					So(err, ShouldBeNil)
 					So(results[0].IsEmpty(), ShouldBeTrue)
 					So(results[1].IsEmpty(), ShouldBeTrue)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 2)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 2)
 					So(s.system.UniqueKeyDataFetcher.Reads(), ShouldEqual, 2)
 				})
 			})
@@ -139,9 +139,9 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetExistentAndNonExistentBo
 			Convey("When the book is queried with a book that doesn't exist", func() {
 				bookId2 := uuid.NewV4().String()
 				ids := []string{book.BookId, bookId2}
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
-				results, err := s.system.CachedRepo.FindByKeys(ctx, "ID", ids)
+				results, err := s.system.BookRepo.FindByKeys(ctx, "ID", ids)
 
 				Convey("Then the results should contain the existent book, "+
 					"And the database should've been queried for 1 missing id, "+
@@ -153,7 +153,7 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetExistentAndNonExistentBo
 					So(b.AuthorID, ShouldEqual, book.DBBook.AuthorID)
 					So(b.Status, ShouldEqual, book.DBBook.Status)
 					So(results[1].IsEmpty(), ShouldBeTrue)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 1)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 1)
 					So(s.system.UniqueKeyDataFetcher.Reads(), ShouldEqual, 1)
 				})
 			})
@@ -174,9 +174,9 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetExistentAndNonExistentBo
 				book.ClearCacheData(ctx)
 				bookId2 := uuid.NewV4().String()
 				ids := []string{book.BookId, bookId2}
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
-				results, err := s.system.CachedRepo.FindByKeys(ctx, "ID", ids)
+				results, err := s.system.BookRepo.FindByKeys(ctx, "ID", ids)
 
 				Convey("Then the results should contain the existent book, "+
 					"And the database should've been queried for 2 missing ids, "+
@@ -188,7 +188,7 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetExistentAndNonExistentBo
 					So(b.AuthorID, ShouldEqual, book.DBBook.AuthorID)
 					So(b.Status, ShouldEqual, book.DBBook.Status)
 					So(results[1].IsEmpty(), ShouldBeTrue)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 2)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 2)
 					So(s.system.UniqueKeyDataFetcher.Reads(), ShouldEqual, 2)
 				})
 			})
