@@ -1,9 +1,8 @@
-package integration_tests
+package book_gorm_redis
 
 import (
-	"github.com/merlinapp/datarepo-go/integration_tests/bootstrap"
+	"github.com/merlinapp/datarepo-go/integration_tests/book_gorm_redis/testdomain"
 	"github.com/merlinapp/datarepo-go/integration_tests/model"
-	"github.com/merlinapp/datarepo-go/integration_tests/testdomain"
 	"github.com/satori/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/stretchr/testify/suite"
@@ -12,7 +11,7 @@ import (
 
 type GormRedisIntegrationUniqueKeyTestSuite struct {
 	suite.Suite
-	system *bootstrap.SystemInstance
+	system *testdomain.SystemInstance
 }
 
 func TestGormRedisIntegrationUniqueKeyTestSuite(t *testing.T) {
@@ -197,10 +196,10 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetExistentAndNonExistentBo
 }
 
 func (s *GormRedisIntegrationUniqueKeyTestSuite) SetupTest() {
-	s.system = bootstrap.StartSystemForIntegrationTests()
-	bootstrap.PrepareTestDB()
+	s.system = startSystemForIntegrationTests()
+	prepareTestDB()
 }
 
 func (s *GormRedisIntegrationUniqueKeyTestSuite) TearDownTest() {
-	bootstrap.RollbackTestDb()
+	rollbackTestDb()
 }
