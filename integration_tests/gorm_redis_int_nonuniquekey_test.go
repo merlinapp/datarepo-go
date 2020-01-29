@@ -35,7 +35,7 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetEmptyBooksForAuthor()
 
 			Convey("When the books for an author that has no books are fetched", func() {
 				author := testdomain.CreateAuthor(s.system)
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
 				books, err := author.GetBooks(ctx)
 
@@ -44,7 +44,7 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetEmptyBooksForAuthor()
 					"And there should be a cache miss", func() {
 					So(err, ShouldBeNil)
 					So(books, ShouldBeEmpty)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 1)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 1)
 					So(s.system.NonUniqueKeyDataFetcher.Reads(), ShouldEqual, 1)
 				})
 			})
@@ -62,7 +62,7 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetEmptyBooksForAuthors(
 				author1 := testdomain.CreateAuthor(s.system)
 				author2 := testdomain.CreateAuthor(s.system)
 				ids := []string{author1.AuthorId, author2.AuthorId}
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
 				books, err := testdomain.GetBooksForAuthors(s.system, ids)
 
@@ -73,7 +73,7 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetEmptyBooksForAuthors(
 					So(len(books), ShouldEqual, 2)
 					So(books[0], ShouldBeEmpty)
 					So(books[1], ShouldBeEmpty)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 2)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 2)
 					So(s.system.NonUniqueKeyDataFetcher.Reads(), ShouldEqual, 2)
 				})
 			})
@@ -94,14 +94,14 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetAuthorBooksFromCache(
 			books, _ := author.GetBooks(ctx)
 
 			Convey("When the books for the author are retrieved a 2nd time", func() {
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
 				books2, err := author.GetBooks(ctx)
 
 				Convey("The books should be retrieved successfully, "+
 					"And the data should've been retrieved from the cache", func() {
 					So(err, ShouldBeNil)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 0)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 0)
 					So(s.system.NonUniqueKeyDataFetcher.Reads(), ShouldEqual, 0)
 					ContainsBooks(books, book1, book2)
 					ContainsBooks(books2, book1, book2)
@@ -125,15 +125,15 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetCreateAndGetAuthorBoo
 
 			Convey("When I create a 3rd book and query for the books again", func() {
 				book3, _ := author.CreateBook(ctx, InProgressStatus)
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
 				books2, err := author.GetBooks(ctx)
 
 				Convey("The books should be retrieved successfully, "+
 					"And the data should've been retrieved from the cache", func() {
 					So(err, ShouldBeNil)
-					So(s.system.CacheStore.Hits(), ShouldEqual, 1)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 0)
+					So(s.system.BookCacheStore.Hits(), ShouldEqual, 1)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 0)
 					So(s.system.NonUniqueKeyDataFetcher.Reads(), ShouldEqual, 0)
 					ContainsBooks(books, book1, book2)
 					ContainsBooks(books2, book1, book2, book3)
@@ -161,15 +161,15 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetCreateAndGetTwoAuthor
 
 			Convey("When I create a 3rd book for the 1st author and query for the books again", func() {
 				book3, _ := author1.CreateBook(ctx, InProgressStatus)
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
 				books2, err := testdomain.GetBooksForAuthors(s.system, authorIds)
 
 				Convey("The books should be retrieved successfully, "+
 					"And the data should've been retrieved from the cache", func() {
 					So(err, ShouldBeNil)
-					So(s.system.CacheStore.Hits(), ShouldEqual, 2)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 0)
+					So(s.system.BookCacheStore.Hits(), ShouldEqual, 2)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 0)
 					So(s.system.NonUniqueKeyDataFetcher.Reads(), ShouldEqual, 0)
 					So(len(books2), ShouldEqual, 2)
 					ContainsBooks(books[0], book1, book2)
@@ -199,15 +199,15 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetUpdateAndGetTwoAuthor
 
 			Convey("When I update the 1st book for the 1st author and query for the books again", func() {
 				book1.UpdateStatus(ctx, InProgressStatus)
-				s.system.CacheStore.ClearStats()
+				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
 				books2, err := testdomain.GetBooksForAuthors(s.system, authorIds)
 
 				Convey("The books should be retrieved successfully, "+
 					"And the data should've been retrieved from the cache", func() {
 					So(err, ShouldBeNil)
-					So(s.system.CacheStore.Hits(), ShouldEqual, 2)
-					So(s.system.CacheStore.Miss(), ShouldEqual, 0)
+					So(s.system.BookCacheStore.Hits(), ShouldEqual, 2)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 0)
 					So(s.system.NonUniqueKeyDataFetcher.Reads(), ShouldEqual, 0)
 					So(len(books2), ShouldEqual, 2)
 					ContainsBooks(books2[0], book1, book2)

@@ -35,7 +35,7 @@ func (a *Author) ClearData(ctx context.Context) {
 }
 
 func (a *Author) ClearCacheData(ctx context.Context) {
-	a.System.CacheStore.Delete(ctx, authorCachePrefix+a.AuthorId)
+	a.System.BookCacheStore.Delete(ctx, authorCachePrefix+a.AuthorId)
 }
 
 func (a *Author) CreateBook(ctx context.Context, status string) (*Book, error) {
@@ -44,7 +44,7 @@ func (a *Author) CreateBook(ctx context.Context, status string) (*Book, error) {
 
 func (a *Author) VerifyBookIsCached(ctx context.Context, bookId, status string) bool {
 	var books []*model.Book
-	found, err := a.System.CacheStore.Get(ctx, authorCachePrefix+a.AuthorId, &books)
+	found, err := a.System.BookCacheStore.Get(ctx, authorCachePrefix+a.AuthorId, &books)
 	if err != nil || !found {
 		return false
 	}
@@ -57,7 +57,7 @@ func (a *Author) VerifyBookIsCached(ctx context.Context, bookId, status string) 
 }
 
 func (a *Author) GetBooks(ctx context.Context) ([]*model.Book, error) {
-	result, err := a.System.CachedRepo.FindByKey(ctx, "AuthorID", a.AuthorId)
+	result, err := a.System.BookRepo.FindByKey(ctx, "AuthorID", a.AuthorId)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (a *Author) GetBooks(ctx context.Context) ([]*model.Book, error) {
 }
 
 func GetBooksForAuthors(system *bootstrap.SystemInstance, ids []string) ([][]*model.Book, error) {
-	results, err := system.CachedRepo.FindByKeys(system.Ctx, "AuthorID", ids)
+	results, err := system.BookRepo.FindByKeys(system.Ctx, "AuthorID", ids)
 	if err != nil {
 		return nil, err
 	}

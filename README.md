@@ -20,7 +20,8 @@ We'll follow semantic versioning, so, once we reach a stable state and release 1
 Right now we offer support for:
 
 Caching Stores:
-* Redis (using go-redis and implemented as a write-through cache)
+* Redis Cache (using go-redis and implemented as a write-through cache)
+* In-Memory Cache (using freecache - see github.com/coocood/freecache)
 * Statistics Wrapper (a Caching Store that provides stats about cache access, useful for testing)
 
 Repositories:

@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/merlinapp/datarepo-go"
+	"github.com/merlinapp/datarepo-go/cachestore/memory"
 	"github.com/merlinapp/datarepo-go/cachestore/redis"
 	"github.com/merlinapp/datarepo-go/cachestore/stats"
 	"github.com/merlinapp/datarepo-go/integration_tests/model"
@@ -23,10 +24,12 @@ import (
 type SystemInstance struct {
 	Ctx                     context.Context
 	DB                      *gorm.DB
-	CacheStore              stats.StatsCacheStore
+	BookCacheStore          stats.StatsCacheStore
 	UniqueKeyDataFetcher    stats2.StatsDataFetcher
 	NonUniqueKeyDataFetcher stats2.StatsDataFetcher
-	CachedRepo              datarepo.CachedRepository
+	BookTypeCacheStore      stats.StatsCacheStore
+	BookRepo                datarepo.CachedRepository
+	BookTypeRepo            datarepo.CachedRepository
 }
 
 var (
@@ -101,13 +104,22 @@ func StartSystemForIntegrationTests() *SystemInstance {
 		WithNonUniqueKeyCache(authorIdCache, statsCacheStore)
 	repo := builder.BuildCachedRepository()
 
+	bookTypeCacheStore := memory.NewFreeCacheInMemoryStore(1 * 1024 * 1024)
+	bookTypeStatsCacheStore := stats.NewStatsCacheStore(bookTypeCacheStore)
+
+	bookTypeRepo := gorm2.CachedRepositoryBuilder(db, &model.BookType{}).
+		WithUniqueKeyCache(bookTypeCache, bookTypeStatsCacheStore).
+		BuildCachedRepository()
+
 	testInstance = &SystemInstance{
 		Ctx:                     context.Background(),
 		DB:                      db,
-		CacheStore:              statsCacheStore,
-		CachedRepo:              repo,
+		BookCacheStore:          statsCacheStore,
+		BookRepo:                repo,
 		UniqueKeyDataFetcher:    statsUniqueKeyDataFetcher,
 		NonUniqueKeyDataFetcher: statsNonUniqueKeyDataFetcher,
+		BookTypeCacheStore:      bookTypeStatsCacheStore,
+		BookTypeRepo:            bookTypeRepo,
 	}
 
 	return testInstance
@@ -155,6 +167,7 @@ func dbParams(params ...string) string {
 func autoMigrate(db *gorm.DB) {
 	db.AutoMigrate(&model.Author{})
 	db.AutoMigrate(&model.Book{})
+	db.AutoMigrate(&model.BookType{})
 }
 
 var (
@@ -169,5 +182,10 @@ var (
 		SubKeyFieldName:   "ID",
 		Expiration:        12 * time.Hour,
 		CacheEmptyResults: true,
+	}
+	bookTypeCache = datarepo.UniqueKeyCacheDefinition{
+		KeyPrefix:    "bt:",
+		KeyFieldName: "ID",
+		Expiration:   5 * time.Minute,
 	}
 )

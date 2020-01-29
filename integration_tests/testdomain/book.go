@@ -21,7 +21,7 @@ func CreateBook(system *bootstrap.SystemInstance, authorId, status string) (*Boo
 		AuthorID: authorId,
 		Status:   status,
 	}
-	err := system.CachedRepo.Create(system.Ctx, book)
+	err := system.BookRepo.Create(system.Ctx, book)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (b *Book) ClearData(ctx context.Context) {
 }
 
 func (b *Book) ClearCacheData(ctx context.Context) {
-	b.System.CacheStore.Delete(ctx, bookCachePrefix+b.BookId)
+	b.System.BookCacheStore.Delete(ctx, bookCachePrefix+b.BookId)
 }
 
 func (b *Book) VerifyBookExists(ctx context.Context) bool {
@@ -52,7 +52,7 @@ func (b *Book) VerifyBookExists(ctx context.Context) bool {
 
 func (b *Book) VerifyBookIsCached(ctx context.Context) bool {
 	var book *model.Book
-	found, err := b.System.CacheStore.Get(ctx, bookCachePrefix+b.BookId, &book)
+	found, err := b.System.BookCacheStore.Get(ctx, bookCachePrefix+b.BookId, &book)
 	if err != nil || !found || book.Status != b.DBBook.Status {
 		return false
 	}
@@ -66,7 +66,7 @@ func (b *Book) UpdateStatus(ctx context.Context, newStatus string) error {
 		AuthorID: b.DBBook.AuthorID,
 		Status:   newStatus,
 	}
-	err := b.System.CachedRepo.Update(ctx, updatedBook)
+	err := b.System.BookRepo.Update(ctx, updatedBook)
 	if err != nil {
 		return err
 	}
