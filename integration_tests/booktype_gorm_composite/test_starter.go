@@ -3,7 +3,6 @@ package booktype_gorm_composite
 import (
 	"context"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
 	"github.com/merlinapp/datarepo-go"
 	"github.com/merlinapp/datarepo-go/cachestore/composite"
 	"github.com/merlinapp/datarepo-go/cachestore/memory"
@@ -15,13 +14,6 @@ import (
 	gorm2 "github.com/merlinapp/datarepo-go/repo/gorm"
 	"time"
 )
-
-type SystemInstance struct {
-	Ctx                context.Context
-	DB                 *gorm.DB
-	BookTypeCacheStore stats.StatsCacheStore
-	BookTypeRepo       datarepo.CachedRepository
-}
 
 var testInstance *testdomain.SystemInstance
 

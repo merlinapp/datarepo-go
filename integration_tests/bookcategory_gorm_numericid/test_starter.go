@@ -1,4 +1,4 @@
-package booktype_gorm_memory
+package bookcategory_gorm_memory
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/merlinapp/datarepo-go/cachestore/memory"
 	"github.com/merlinapp/datarepo-go/cachestore/stats"
 	"github.com/merlinapp/datarepo-go/integration_tests"
-	"github.com/merlinapp/datarepo-go/integration_tests/booktype_gorm_memory/testdomain"
+	"github.com/merlinapp/datarepo-go/integration_tests/bookcategory_gorm_numericid/testdomain"
 	"github.com/merlinapp/datarepo-go/integration_tests/model"
 	gorm2 "github.com/merlinapp/datarepo-go/repo/gorm"
 	"time"
@@ -23,25 +23,25 @@ func startSystemForIntegrationTests() *testdomain.SystemInstance {
 	db := integration_tests.TestConnectionFactory()
 	db.LogMode(true)
 
-	bookTypeCacheStore := memory.NewFreeCacheInMemoryStore(1 * 1024 * 1024)
-	bookTypeStatsCacheStore := stats.NewStatsCacheStore(bookTypeCacheStore)
+	cacheStore := memory.NewFreeCacheInMemoryStore(1 * 1024 * 1024)
+	statsCacheStore := stats.NewStatsCacheStore(cacheStore)
 
-	bookTypeRepo := gorm2.CachedRepositoryBuilder(db, &model.BookType{}).
-		WithUniqueKeyCache(bookTypeCache, bookTypeStatsCacheStore).
+	bookCategoryRepo := gorm2.CachedRepositoryBuilder(db, &model.BookCategory{}).
+		WithUniqueKeyCache(bookCategoryCache, statsCacheStore).
 		BuildCachedRepository()
 
 	testInstance = &testdomain.SystemInstance{
-		Ctx:                context.Background(),
-		DB:                 db,
-		BookTypeCacheStore: bookTypeStatsCacheStore,
-		BookTypeRepo:       bookTypeRepo,
+		Ctx:                    context.Background(),
+		DB:                     db,
+		BookCategoryCacheStore: statsCacheStore,
+		BookCategoryRepo:       bookCategoryRepo,
 	}
 
 	return testInstance
 }
 
 func prepareTestDB() {
-	testInstance.DB.Delete(&model.BookType{})
+	testInstance.DB.Delete(&model.BookCategory{})
 }
 
 func rollbackTestDb() {
@@ -50,8 +50,8 @@ func rollbackTestDb() {
 }
 
 var (
-	bookTypeCache = datarepo.UniqueKeyCacheDefinition{
-		KeyPrefix:    "bt:",
+	bookCategoryCache = datarepo.UniqueKeyCacheDefinition{
+		KeyPrefix:    "bc:",
 		KeyFieldName: "ID",
 		Expiration:   5 * time.Minute,
 	}

@@ -77,4 +77,5 @@ func autoMigrate(db *gorm.DB) {
 	db.AutoMigrate(&model.Author{})
 	db.AutoMigrate(&model.Book{})
 	db.AutoMigrate(&model.BookType{})
+	db.AutoMigrate(&model.BookCategory{})
 }

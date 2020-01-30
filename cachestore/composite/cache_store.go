@@ -37,12 +37,12 @@ func (c *compositeCacheStore) Set(ctx context.Context, key string, value interfa
 func (c *compositeCacheStore) Get(ctx context.Context, key string, out interface{}) (bool, error) {
 	var err error
 	for _, cache := range c.delegates {
-		found, err2 := cache.Get(ctx, key, out)
+		found, cErr := cache.Get(ctx, key, out)
 		if found {
-			return true, err2
+			return true, cErr
 		}
-		if err2 != nil {
-			err = err2
+		if cErr != nil {
+			err = cErr
 		}
 	}
 	return false, err
@@ -51,8 +51,8 @@ func (c *compositeCacheStore) Get(ctx context.Context, key string, out interface
 func (c *compositeCacheStore) Delete(ctx context.Context, key string) error {
 	var err error
 	for _, cache := range c.delegates {
-		if err2 := cache.Delete(ctx, key); err2 != nil {
-			err = err2
+		if cErr := cache.Delete(ctx, key); cErr != nil {
+			err = cErr
 		}
 	}
 	return err

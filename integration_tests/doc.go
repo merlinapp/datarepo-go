@@ -9,3 +9,5 @@ package integration_tests
 // repository and a Redis based cache.
 // - booktype_gorm_memory: This is a set of integration tests that uses the BookType entity, using a
 // GORM based repository and an in-memory cache.
+// - bookcategory_gorm_numericid: Tests that use the BookCategory entity which has a numeric id, using
+// a GORM based repository and an in-memory cache.
