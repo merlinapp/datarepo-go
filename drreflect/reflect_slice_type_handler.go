@@ -4,8 +4,6 @@ import (
 	"reflect"
 )
 
-var sliceTypeHandlerCache map[reflect.Type]*reflectSliceTypeHandler
-
 type reflectSliceTypeHandler struct {
 	*reflectTypeHandler
 }
@@ -15,13 +13,6 @@ func NewReflectSliceTypeHandlerFromValue(v interface{}) SliceTypeHandler {
 }
 
 func NewReflectSliceTypeHandler(t reflect.Type) *reflectSliceTypeHandler {
-	if sliceTypeHandlerCache == nil {
-		sliceTypeHandlerCache = make(map[reflect.Type]*reflectSliceTypeHandler)
-	}
-	if sa, ok := sliceTypeHandlerCache[t]; ok {
-		return sa
-	}
-
 	if t.Kind() == reflect.Ptr {
 		if t.Elem().Kind() != reflect.Slice {
 			panic("provided type was a pointer but not to a slice: " + t.String())
@@ -35,7 +26,6 @@ func NewReflectSliceTypeHandler(t reflect.Type) *reflectSliceTypeHandler {
 	sth := reflectSliceTypeHandler{
 		NewReflectTypeHandler(t),
 	}
-	sliceTypeHandlerCache[t] = &sth
 	return &sth
 }
 

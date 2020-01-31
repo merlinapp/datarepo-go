@@ -4,8 +4,6 @@ import (
 	"reflect"
 )
 
-var typeHandlerCache map[reflect.Type]*reflectTypeHandler
-
 type reflectTypeHandler struct {
 	t        reflect.Type
 	ptr      reflect.Type
@@ -18,14 +16,6 @@ func NewReflectTypeHandlerFromValue(v interface{}) TypeHandler {
 }
 
 func NewReflectTypeHandler(t reflect.Type) *reflectTypeHandler {
-	if typeHandlerCache == nil {
-		typeHandlerCache = make(map[reflect.Type]*reflectTypeHandler)
-	}
-
-	if th, ok := typeHandlerCache[t]; ok {
-		return th
-	}
-
 	ptr := reflect.PtrTo(t)
 	th := reflectTypeHandler{
 		t:        t,
@@ -33,7 +23,6 @@ func NewReflectTypeHandler(t reflect.Type) *reflectTypeHandler {
 		slice:    reflect.SliceOf(t),
 		slicePtr: reflect.SliceOf(ptr),
 	}
-	typeHandlerCache[t] = &th
 	return &th
 }
 

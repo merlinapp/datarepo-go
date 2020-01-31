@@ -4,8 +4,6 @@ import (
 	"reflect"
 )
 
-var structTypeHandlerCache map[reflect.Type]*reflectStructTypeHandler
-
 type reflectStructTypeHandler struct {
 	*reflectTypeHandler
 }
@@ -15,13 +13,6 @@ func NewReflectStructTypeHandlerFromValue(v interface{}) StructTypeHandler {
 }
 
 func NewReflectStructTypeHandler(t reflect.Type) *reflectStructTypeHandler {
-	if structTypeHandlerCache == nil {
-		structTypeHandlerCache = make(map[reflect.Type]*reflectStructTypeHandler)
-	}
-	if sa, ok := structTypeHandlerCache[t]; ok {
-		return sa
-	}
-
 	if t.Kind() == reflect.Ptr {
 		if t.Elem().Kind() != reflect.Struct {
 			panic("provided type was a pointer but not to a struct: " + t.String())
@@ -35,7 +26,6 @@ func NewReflectStructTypeHandler(t reflect.Type) *reflectStructTypeHandler {
 	sth := reflectStructTypeHandler{
 		NewReflectTypeHandler(t),
 	}
-	structTypeHandlerCache[t] = &sth
 	return &sth
 }
 
