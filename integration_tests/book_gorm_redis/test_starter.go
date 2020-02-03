@@ -2,7 +2,7 @@ package book_gorm_redis
 
 import (
 	"context"
-	redis2 "github.com/go-redis/redis"
+	goredis "github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/merlinapp/datarepo-go"
 	"github.com/merlinapp/datarepo-go/cachestore/redis"
@@ -10,8 +10,8 @@ import (
 	"github.com/merlinapp/datarepo-go/integration_tests"
 	"github.com/merlinapp/datarepo-go/integration_tests/book_gorm_redis/testdomain"
 	"github.com/merlinapp/datarepo-go/integration_tests/model"
-	gorm2 "github.com/merlinapp/datarepo-go/repo/gorm"
-	stats2 "github.com/merlinapp/datarepo-go/repo/stats"
+	"github.com/merlinapp/datarepo-go/repo/gorm"
+	statsrepo "github.com/merlinapp/datarepo-go/repo/stats"
 	"log"
 	"os"
 	"strconv"
@@ -34,7 +34,7 @@ func startSystemForIntegrationTests() *testdomain.SystemInstance {
 		panic(err)
 	}
 
-	redisClient := redis2.NewClient(&redis2.Options{
+	redisClient := goredis.NewClient(&goredis.Options{
 		Addr:     os.Getenv("REDIS_HOST"),
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       database,
@@ -42,13 +42,13 @@ func startSystemForIntegrationTests() *testdomain.SystemInstance {
 	cacheStore := redis.NewRedisCacheStore(redisClient)
 	statsCacheStore := stats.NewStatsCacheStore(cacheStore)
 
-	gormUniqueKeyDataFetcher := gorm2.NewUniqueKeyDataFetcher(db, &model.Book{})
-	gormNonUniqueKeyDataFetcher := gorm2.NewNonUniqueKeyDataFetcher(db, &model.Book{})
-	gormDataWriter := gorm2.NewDataWriter(db, &model.Book{})
+	gormUniqueKeyDataFetcher := gorm.NewUniqueKeyDataFetcher(db, &model.Book{})
+	gormNonUniqueKeyDataFetcher := gorm.NewNonUniqueKeyDataFetcher(db, &model.Book{})
+	gormDataWriter := gorm.NewDataWriter(db, &model.Book{})
 
-	statsUniqueKeyDataFetcher := stats2.NewStatsDataFetcher(gormUniqueKeyDataFetcher)
-	statsNonUniqueKeyDataFetcher := stats2.NewStatsDataFetcher(gormNonUniqueKeyDataFetcher)
-	statsDataWriter := stats2.NewStatsDataWriter(gormDataWriter)
+	statsUniqueKeyDataFetcher := statsrepo.NewStatsDataFetcher(gormUniqueKeyDataFetcher)
+	statsNonUniqueKeyDataFetcher := statsrepo.NewStatsDataFetcher(gormNonUniqueKeyDataFetcher)
+	statsDataWriter := statsrepo.NewStatsDataWriter(gormDataWriter)
 
 	builder := datarepo.CachedRepositoryBuilder(&model.Book{}).
 		WithUniqueKeyDataFetcher(statsUniqueKeyDataFetcher).

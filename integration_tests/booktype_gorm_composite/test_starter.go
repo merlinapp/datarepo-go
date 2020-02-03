@@ -11,7 +11,7 @@ import (
 	"github.com/merlinapp/datarepo-go/integration_tests"
 	"github.com/merlinapp/datarepo-go/integration_tests/booktype_gorm_composite/testdomain"
 	"github.com/merlinapp/datarepo-go/integration_tests/model"
-	gorm2 "github.com/merlinapp/datarepo-go/repo/gorm"
+	"github.com/merlinapp/datarepo-go/repo/gorm"
 	"time"
 )
 
@@ -25,13 +25,14 @@ func startSystemForIntegrationTests() *testdomain.SystemInstance {
 	db := integration_tests.TestConnectionFactory()
 	db.LogMode(true)
 
-	memoryCacheStore := memory.NewFreeCacheInMemoryStore(1 * 1024 * 1024)
+	cacheSize := 1 * 1024 * 1024
+	memoryCacheStore := memory.NewFreeCacheInMemoryStore(cacheSize)
 	emptyCacheStore := &nocache.Store{}
 
 	bookTypeCacheStore := composite.NewCompositeCacheStore(emptyCacheStore, memoryCacheStore)
 	bookTypeStatsCacheStore := stats.NewStatsCacheStore(bookTypeCacheStore)
 
-	bookTypeRepo := gorm2.CachedRepositoryBuilder(db, &model.BookType{}).
+	bookTypeRepo := gorm.CachedRepositoryBuilder(db, &model.BookType{}).
 		WithUniqueKeyCache(bookTypeCache, bookTypeStatsCacheStore).
 		BuildCachedRepository()
 
