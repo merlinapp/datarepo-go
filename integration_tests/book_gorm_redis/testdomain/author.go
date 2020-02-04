@@ -3,20 +3,19 @@ package testdomain
 import (
 	"context"
 	"github.com/merlinapp/datarepo-go"
-	"github.com/merlinapp/datarepo-go/integration_tests/bootstrap"
 	"github.com/merlinapp/datarepo-go/integration_tests/model"
 	"github.com/satori/uuid"
 )
 
 type Author struct {
-	System   *bootstrap.SystemInstance
+	System   *SystemInstance
 	AuthorId string
 	DBAuthor *model.Author
 }
 
 const authorCachePrefix = "a:"
 
-func CreateAuthor(system *bootstrap.SystemInstance) *Author {
+func CreateAuthor(system *SystemInstance) *Author {
 	author := &model.Author{
 		ID:   uuid.NewV4().String(),
 		Name: "Name",
@@ -66,7 +65,7 @@ func (a *Author) GetBooks(ctx context.Context) ([]*model.Book, error) {
 	return books, nil
 }
 
-func GetBooksForAuthors(system *bootstrap.SystemInstance, ids []string) ([][]*model.Book, error) {
+func GetBooksForAuthors(system *SystemInstance, ids []string) ([][]*model.Book, error) {
 	results, err := system.BookRepo.FindByKeys(system.Ctx, "AuthorID", ids)
 	if err != nil {
 		return nil, err

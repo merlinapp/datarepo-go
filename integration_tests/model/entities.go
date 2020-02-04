@@ -16,3 +16,8 @@ type BookType struct {
 	ID   string `json:"id" gorm:"primary_key" sql:"type:CHAR(36)"`
 	Name string `json:"name"`
 }
+
+type BookCategory struct {
+	ID   int    `json:"id" gorm:"primary_key" sql:"type:int(11)"`
+	Name string `json:"name"`
+}

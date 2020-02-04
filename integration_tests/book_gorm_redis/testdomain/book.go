@@ -2,20 +2,19 @@ package testdomain
 
 import (
 	"context"
-	"github.com/merlinapp/datarepo-go/integration_tests/bootstrap"
 	"github.com/merlinapp/datarepo-go/integration_tests/model"
 	"github.com/satori/uuid"
 )
 
 type Book struct {
-	System *bootstrap.SystemInstance
+	System *SystemInstance
 	BookId string
 	DBBook *model.Book
 }
 
 const bookCachePrefix = "b:"
 
-func CreateBook(system *bootstrap.SystemInstance, authorId, status string) (*Book, error) {
+func CreateBook(system *SystemInstance, authorId, status string) (*Book, error) {
 	book := &model.Book{
 		ID:       uuid.NewV4().String(),
 		AuthorID: authorId,

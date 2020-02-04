@@ -1,9 +1,8 @@
-package integration_tests
+package booktype_gorm_memory
 
 import (
-	"github.com/merlinapp/datarepo-go/integration_tests/bootstrap"
+	"github.com/merlinapp/datarepo-go/integration_tests/booktype_gorm_memory/testdomain"
 	"github.com/merlinapp/datarepo-go/integration_tests/model"
-	"github.com/merlinapp/datarepo-go/integration_tests/testdomain"
 	"github.com/satori/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/stretchr/testify/suite"
@@ -12,7 +11,7 @@ import (
 
 type GormMemoryIntegrationUniqueKeyTestSuite struct {
 	suite.Suite
-	system *bootstrap.SystemInstance
+	system *testdomain.SystemInstance
 }
 
 func TestGormMemoryIntegrationUniqueKeyTestSuite(t *testing.T) {
@@ -109,10 +108,10 @@ func (s *GormMemoryIntegrationUniqueKeyTestSuite) TestGetExistentAndNonExistentB
 }
 
 func (s *GormMemoryIntegrationUniqueKeyTestSuite) SetupTest() {
-	s.system = bootstrap.StartSystemForIntegrationTests()
-	bootstrap.PrepareTestDB()
+	s.system = startSystemForIntegrationTests()
+	prepareTestDB()
 }
 
 func (s *GormMemoryIntegrationUniqueKeyTestSuite) TearDownTest() {
-	bootstrap.RollbackTestDb()
+	rollbackTestDb()
 }
