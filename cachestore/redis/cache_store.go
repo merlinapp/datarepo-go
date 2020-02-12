@@ -62,7 +62,12 @@ func (c *redisBasedCacheStore) Get(ctx context.Context, key string, out interfac
 }
 
 func (c *redisBasedCacheStore) Delete(ctx context.Context, key string) error {
-	return c.cache.Delete(key)
+	if err := c.cache.Delete(key); err != nil {
+		if err != redisCache.ErrCacheMiss {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c *redisBasedCacheStore) GetMulti(ctx context.Context, keys []string, out interface{}) ([]bool, error) {
