@@ -35,7 +35,11 @@ func (c *nonUniqueKeyCacheHandler) SingleResultPerKey() bool {
 }
 
 func (c *nonUniqueKeyCacheHandler) DeleteValue(ctx context.Context, cacheStore CacheStore, value interface{}) error {
-	return cacheStore.Delete(ctx, c.cacheKeyFromValue(value))
+	key := c.cacheKeyFromValue(value)
+	if key == c.keyPrefix {
+		return nil
+	}
+	return cacheStore.Delete(ctx, key)
 }
 
 func (c *nonUniqueKeyCacheHandler) Set(ctx context.Context, cacheStore CacheStore, value interface{}) error {
