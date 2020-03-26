@@ -71,6 +71,20 @@ func (_m *CachedRepository) FindByKeys(ctx context.Context, keyFieldName string,
 	return r0, r1
 }
 
+// PartialUpdate provides a mock function with given fields: ctx, value
+func (_m *CachedRepository) PartialUpdate(ctx context.Context, value interface{}) error {
+	ret := _m.Called(ctx, value)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, value)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Update provides a mock function with given fields: ctx, value
 func (_m *CachedRepository) Update(ctx context.Context, value interface{}) error {
 	ret := _m.Called(ctx, value)

@@ -9,4 +9,6 @@ type DataWriter interface {
 	Create(ctx context.Context, value interface{}) error
 	// Updates the provided value in the repository
 	Update(ctx context.Context, value interface{}) error
+	// Updates the provided value in the repository partially changing only received fields
+	PartialUpdate(ctx context.Context, value interface{}) error
 }

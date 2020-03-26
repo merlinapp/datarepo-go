@@ -37,6 +37,11 @@ func (s *statsDataWriter) Update(ctx context.Context, value interface{}) error {
 	return s.delegate.Update(ctx, value)
 }
 
+func (s *statsDataWriter) PartialUpdate(ctx context.Context, value interface{}) error {
+	s.updates++
+	return s.delegate.PartialUpdate(ctx, value)
+}
+
 func (s *statsDataWriter) ClearStats() {
 	s.creates = 0
 	s.updates = 0

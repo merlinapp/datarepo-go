@@ -16,6 +16,9 @@ type CachedRepository interface {
 	// If successful, then the value is also updated/cached in the configured caches and/or evicted
 	// from the caches that requested eviction on write operations
 	Update(ctx context.Context, value interface{}) error
+	// If successful, then the value is also updated/cached in the configured caches and/or evicted
+	// from the caches that requested eviction on write operations
+	PartialUpdate(ctx context.Context, value interface{}) error
 }
 
 type cachedRepository struct {
@@ -49,6 +52,20 @@ func (r *cachedRepository) Update(ctx context.Context, value interface{}) error 
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (r *cachedRepository) PartialUpdate(ctx context.Context, value interface{}) error {
+	err := r.writer.PartialUpdate(ctx, value)
+	if err != nil {
+		return err
+	}
+
+	err = r.postWriteOp(ctx, value)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
