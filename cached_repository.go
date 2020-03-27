@@ -16,8 +16,11 @@ type CachedRepository interface {
 	// If successful, then the value is also updated/cached in the configured caches and/or evicted
 	// from the caches that requested eviction on write operations
 	Update(ctx context.Context, value interface{}) error
+	//Updates partially the provided value in the repository
+	//
 	// If successful, then the value is also updated/cached in the configured caches and/or evicted
 	// Also fully updated object will be retrieved from data storage and will be cached
+	// value param works as in/out: full object, retrieved from database after update, will be stored in this variable
 	// from the caches that requested eviction on write operations
 	PartialUpdate(ctx context.Context, value interface{}) error
 }
