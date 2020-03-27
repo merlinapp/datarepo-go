@@ -1,0 +1,35 @@
+version: '3.6'
+
+services:
+  datarepodb:
+    container_name: datarepodb
+    image: mysql:5.7
+    volumes:
+      - ./db_data:/var/lib/mysql
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 'secret'
+      MYSQL_DATABASE: sample
+    ports:
+      - 3306:3306
+    networks:
+      - merlin_net
+  datareporedis:
+    container_name: datareporedis
+    image: redis:5.0.5
+    volumes:
+      - ../data/redis:/data
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - merlin_net
+
+networks:
+  merlin_net:
+    name: merlin_net
+    driver: bridge
+
+volumes:
+  db_data:

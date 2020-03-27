@@ -72,3 +72,18 @@ func (b *Book) UpdateStatus(ctx context.Context, newStatus string) error {
 	b.DBBook = updatedBook
 	return nil
 }
+
+func (b *Book) PartialUpdateStatus(ctx context.Context, newStatus string) error {
+	updatedBook := &model.Book{
+		ID:     b.BookId,
+		Status: newStatus,
+	}
+	err := b.System.BookRepo.PartialUpdate(ctx, updatedBook)
+	if err != nil {
+		return err
+	}
+
+	b.DBBook = updatedBook
+
+	return nil
+}

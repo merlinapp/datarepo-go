@@ -127,6 +127,33 @@ func (s *GormRedisIntegrationUniqueKeyTestSuite) TestUpdateBook() {
 	})
 }
 
+func (s *GormRedisIntegrationUniqueKeyTestSuite) TestPartialUpdateBook() {
+	ctx := s.system.Ctx
+
+	Convey("Scenario: Update partially a book", s.T(), func() {
+		Convey("Given a books exists the system", func() {
+			author := testdomain.CreateAuthor(s.system)
+			book, _ := author.CreateBook(ctx, EmptyStatus)
+
+			Convey("When the book is updated", func() {
+				err := book.PartialUpdateStatus(ctx, InProgressStatus)
+
+				Convey("The book should be updated successfully, "+
+					"And the updated book should appear in the database, "+
+					"And the database record should have status: "+InProgressStatus+", "+
+					"And the database record should have same author than before update, "+
+					"And the updated book should appear in the cache", func() {
+					So(err, ShouldBeNil)
+					So(book.VerifyBookExists(ctx), ShouldBeTrue)
+					So(book.DBBook.Status, ShouldEqual, InProgressStatus)
+					So(book.DBBook.AuthorID, ShouldEqual, author.AuthorId)
+					So(book.VerifyBookIsCached(ctx), ShouldBeTrue)
+				})
+			})
+		})
+	})
+}
+
 func (s *GormRedisIntegrationUniqueKeyTestSuite) TestGetExistentAndNonExistentBooks() {
 	ctx := s.system.Ctx
 

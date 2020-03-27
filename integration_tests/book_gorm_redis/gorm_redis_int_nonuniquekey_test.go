@@ -217,6 +217,43 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetUpdateAndGetTwoAuthor
 	})
 }
 
+func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetPartialUpdateAndGetTwoAuthorsBooks() {
+	ctx := s.system.Ctx
+
+	Convey("Scenario: Retrieve books for 2 authors from cache with partial update", s.T(), func() {
+		Convey("Given an author with 2 books in the system, "+
+			"And an author without books, "+
+			"And I query for the books of the authors once", func() {
+			author1 := testdomain.CreateAuthor(s.system)
+			author2 := testdomain.CreateAuthor(s.system)
+			book1, _ := author1.CreateBook(ctx, EmptyStatus)
+			book2, _ := author1.CreateBook(ctx, CompletedStatus)
+
+			authorIds := []string{author1.AuthorId, author2.AuthorId}
+
+			testdomain.GetBooksForAuthors(s.system, authorIds)
+
+			Convey("When I do a partial update of 1st book for the 1st author and query for the books again", func() {
+				book1.PartialUpdateStatus(ctx, InProgressStatus)
+				s.system.BookCacheStore.ClearStats()
+				s.system.NonUniqueKeyDataFetcher.ClearStats()
+				books2, err := testdomain.GetBooksForAuthors(s.system, authorIds)
+
+				Convey("The books should be retrieved successfully, "+
+					"And the data should've been retrieved from the cache", func() {
+					So(err, ShouldBeNil)
+					So(s.system.BookCacheStore.Hits(), ShouldEqual, 2)
+					So(s.system.BookCacheStore.Miss(), ShouldEqual, 0)
+					So(s.system.NonUniqueKeyDataFetcher.Reads(), ShouldEqual, 0)
+					So(len(books2), ShouldEqual, 2)
+					ContainsBooks(books2[0], book1, book2)
+					So(books2[1], ShouldBeEmpty)
+				})
+			})
+		})
+	})
+}
+
 func ContainsBooks(books []*model.Book, booksToFind ...*testdomain.Book) {
 	for _, b := range booksToFind {
 		So(books, ShouldContain, b.DBBook)
