@@ -233,7 +233,7 @@ func (s *GormRedisIntegrationNonUniqueKeyTestSuite) TestGetPartialUpdateAndGetTw
 
 			testdomain.GetBooksForAuthors(s.system, authorIds)
 
-			Convey("When I update the 1st book for the 1st author and query for the books again", func() {
+			Convey("When I do a partial update of 1st book for the 1st author and query for the books again", func() {
 				book1.PartialUpdateStatus(ctx, InProgressStatus)
 				s.system.BookCacheStore.ClearStats()
 				s.system.NonUniqueKeyDataFetcher.ClearStats()
