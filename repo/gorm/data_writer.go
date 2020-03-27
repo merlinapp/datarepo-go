@@ -40,6 +40,22 @@ func (w *dataWriter) Update(ctx context.Context, value interface{}) error {
 	return nil
 }
 
+func (w *dataWriter) PartialUpdate(ctx context.Context, value interface{}) error {
+	err := w.ensurePointer(value)
+	if err != nil {
+		return err
+	}
+	t := w.typeHandler.NewPtrToElement().Element()
+
+	err = w.db.Model(t).Updates(value).Find(value).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (w *dataWriter) ensurePointer(value interface{}) error {
 	if !w.typeHandler.IsOfPtrType(value) {
 		return errors.New("The provided value isn't of the expected type: " + w.typeHandler.Type().String())

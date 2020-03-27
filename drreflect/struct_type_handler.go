@@ -9,4 +9,3 @@ type StructTypeHandler interface {
 	// This function panics if the input is not of the expected type
 	GetFieldValue(input interface{}, fieldName string) interface{}
 }
-

@@ -25,6 +25,20 @@ func (_m *DataWriter) Create(ctx context.Context, value interface{}) error {
 	return r0
 }
 
+// PartialUpdate provides a mock function with given fields: ctx, value
+func (_m *DataWriter) PartialUpdate(ctx context.Context, value interface{}) error {
+	ret := _m.Called(ctx, value)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, value)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Update provides a mock function with given fields: ctx, value
 func (_m *DataWriter) Update(ctx context.Context, value interface{}) error {
 	ret := _m.Called(ctx, value)
