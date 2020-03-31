@@ -45,9 +45,8 @@ func (w *dataWriter) PartialUpdate(ctx context.Context, value interface{}) error
 	if err != nil {
 		return err
 	}
-	t := w.typeHandler.NewPtrToElement().Element()
 
-	err = w.db.Model(t).Updates(value).Find(value).Error
+	err = w.db.Model(value).Updates(value).Find(value).Error
 
 	if err != nil {
 		return err
